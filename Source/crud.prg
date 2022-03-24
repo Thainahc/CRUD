@@ -1,4 +1,4 @@
-
+#INCLUDE "WINUSER.CH"
  FUNCTION MAIN()
 
    LOCAL GetList:={}, cOpcao:=" "
@@ -47,8 +47,12 @@
    ENDIF
    READ
 
-   IF cOpcao == 'A'
+   IF cOpcao == 'I'
+      INCLUSAO(nCodigo, cNome, nPreco, dCadastro, lInativo)
+   ELSEIF cOpcao == 'A'
       ALTERACAO()
+   ELSEIF cOpcao == 'E'
+      EXCLUSAO(nCodigo)
    ENDIF
 
  RETURN NIL
@@ -58,7 +62,7 @@
  FUNCTION OPCAO(cOpcao)
    LOCAL lRetorno
    IF cOpcao <> 'I' .AND. cOpcao <> 'A' .AND. cOpcao <> 'E'
-      MessageBox(,"Opção inválida. Digite novamente.")
+      MessageBox(,"Opção inválida. Informe (I - Inserir / A - Alterar / E - Excluir)","Atenção",MB_ICONEXCLAMATION)
       lRetorno:=.F.
     ELSE
       lRetorno:=.T.
@@ -89,7 +93,7 @@ FUNCTION ALTERACAO()
 
    LOCAL nCodigo:=0, cNome:=Space(100), nPreco:=0, dCadastro:=Date(), lInativo:=.F., GetList:={}
 
-   SELECT PRODUTO
+   CLEAR
 
    OrdSetFocus("CODIGO")
 
@@ -105,9 +109,36 @@ FUNCTION ALTERACAO()
       @ 02,01 SAY "Preco   : " Get nPreco
       @ 03,01 SAY "Cadastro: " Get dCadastro
       @ 04,01 SAY "Inativo : " Get lInativo
+
+   READ
     ELSE
       MessageBox(,"Código não encontrado. Informe novamente")
    ENDIF
+
+   SELECT PRODUTO
+   RLock() //trava o registro que será alterado
+   REPLACE NOME     WITH cNome
+   REPLACE PRECO    WITH nPreco
+   REPLACE CADASTRO WITH dCadastro
+   REPLACE ITATIVO  WITH cInativo=='S'
+   DBCommit() //salva as alterações
+   DBUnlock() //destrava o registro
+
+RETURN NIL
+
+*------------------------------------*
+FUNCTION EXCLUSAO()
+
+   LOCAL nCodigo:=0, GetList:={}
+
+   CLEAR
+
+   SELECT PRODUTO
+
+   //OrderFocous("CODIGO")
+
+   @ 00,00 SAY "Informe o código a ser excluído: " GET nCodigo
+
 
 RETURN NIL
 
