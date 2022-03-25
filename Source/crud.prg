@@ -2,7 +2,6 @@
  FUNCTION MAIN()
 
    LOCAL GetList:={}, cOpcao:=" "
-   LOCAL nCodigo:=0, cNome:=Space(100), nPreco:=0, dCadastro:=Date(), lInativo:=.F.
 
    SET DATE BRITISH
 
@@ -36,16 +35,7 @@
    READ
 
    IF cOpcao == 'I'
-      @ 03,00 SAY "Informe os dados para a inclusao do produto"
-      @ 04,00 SAY "Codigo   : "  GET nCodigo
-      @ 05,00 SAY "Nome     : "  GET cNome
-      @ 06,00 SAY "Preco    : "  GET nPreco PICT "@E 999,999.99"
-      @ 07,00 SAY "Cadastro : "  GET dCadastro
-      @ 08,00 SAY "Inativo  : "  GET lInativo
-
-      READ
-
-      INCLUSAO(nCodigo, cNome, nPreco, dCadastro, lInativo)
+      INCLUSAO()
    ELSEIF cOpcao == 'A'
       ALTERACAO()
    ELSEIF cOpcao == 'E'
@@ -68,7 +58,18 @@ RETURN lRetorno
 
 *--------------------------------*
 
-FUNCTION INCLUSAO(nCodigo, cNome, nPreco, dCadastro, lInativo)
+FUNCTION INCLUSAO()
+
+   LOCAL nCodigo:=0, cNome:=Space(100), nPreco:=0, dCadastro:=Date(), lInativo:=.F.
+
+   @ 03,00 SAY "Informe os dados para a inclusao do produto"
+   @ 04,00 SAY "Codigo   : "  GET nCodigo
+   @ 05,00 SAY "Nome     : "  GET cNome
+   @ 06,00 SAY "Preco    : "  GET nPreco PICT "@E 999,999.99"
+   @ 07,00 SAY "Cadastro : "  GET dCadastro
+   @ 08,00 SAY "Inativo  : "  GET lInativo
+
+   READ
 
    SELECT PRODUTO
 

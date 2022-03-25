@@ -36,18 +36,6 @@
    READ
 
    IF cOpcao == 'I'
-      @ 03,00 SAY "Informe os dados para a inclusao do produto"
-      @ 04,00 SAY "Codigo   : "  GET nCodigo
-      @ 05,00 SAY "Nome     : "  GET cNome
-      @ 06,00 SAY "Preco    : "  GET nPreco PICT "@E 999,999.99"
-      @ 07,00 SAY "Cadastro : "  GET dCadastro
-      @ 08,00 SAY "Inativo  : "  GET lInativo
-
-   INCLUSAO(nCodigo, cNome, nPreco, dCadastro, lInativo)
-   ENDIF
-   READ
-
-   IF cOpcao == 'I'
       INCLUSAO(nCodigo, cNome, nPreco, dCadastro, lInativo)
    ELSEIF cOpcao == 'A'
       ALTERACAO()
@@ -72,6 +60,15 @@ RETURN lRetorno
 *--------------------------------*
 
 FUNCTION INCLUSAO(nCodigo, cNome, nPreco, dCadastro, lInativo)
+
+   @ 03,00 SAY "Informe os dados para a inclusao do produto"
+   @ 04,00 SAY "Codigo   : "  GET nCodigo
+   @ 05,00 SAY "Nome     : "  GET cNome
+   @ 06,00 SAY "Preco    : "  GET nPreco PICT "@E 999,999.99"
+   @ 07,00 SAY "Cadastro : "  GET dCadastro
+   @ 08,00 SAY "Inativo  : "  GET lInativo
+
+   READ
 
    SELECT PRODUTO
 
