@@ -2,7 +2,6 @@
  FUNCTION MAIN()
 
    LOCAL GetList:={}, cOpcao:=" "
-   LOCAL nCodigo:=0, cNome:=Space(100), nPreco:=0, dCadastro:=Date(), lInativo:=.F.
 
    SET DATE BRITISH
 
@@ -36,7 +35,7 @@
    READ
 
    IF cOpcao == 'I'
-      INCLUSAO(nCodigo, cNome, nPreco, dCadastro, lInativo)
+      INCLUSAO()
    ELSEIF cOpcao == 'A'
       ALTERACAO()
    ELSEIF cOpcao == 'E'
@@ -59,7 +58,9 @@ RETURN lRetorno
 
 *--------------------------------*
 
-FUNCTION INCLUSAO(nCodigo, cNome, nPreco, dCadastro, lInativo)
+FUNCTION INCLUSAO()
+
+   LOCAL nCodigo:=0, cNome:=Space(100), nPreco:=0, dCadastro:=Date(), lInativo:=.F.
 
    @ 03,00 SAY "Informe os dados para a inclusao do produto"
    @ 04,00 SAY "Codigo   : "  GET nCodigo

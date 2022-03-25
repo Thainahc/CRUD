@@ -60,14 +60,14 @@ RETURN lRetorno
 
 FUNCTION INCLUSAO()
 
-   LOCAL nCodigo:=0, cNome:=Space(100), nPreco:=0, dCadastro:=Date(), lInativo:=.F.
+   LOCAL nCodigo:=0, cNome:=Space(100), nPreco:=0, dCadastro:=Date(), lInativo:=.F., GetList:={}
 
    @ 03,00 SAY "Informe os dados para a inclusao do produto"
-   @ 04,00 SAY "Codigo   : "  GET nCodigo
-   @ 05,00 SAY "Nome     : "  GET cNome
-   @ 06,00 SAY "Preco    : "  GET nPreco PICT "@E 999,999.99"
-   @ 07,00 SAY "Cadastro : "  GET dCadastro
-   @ 08,00 SAY "Inativo  : "  GET lInativo
+   @ 04,00 SAY "Codigo   : "  Get nCodigo
+   @ 05,00 SAY "Nome     : "  Get cNome
+   @ 06,00 SAY "Preco    : "  Get nPreco PICT "@E 999,999.99"
+   @ 07,00 SAY "Cadastro : "  Get dCadastro
+   @ 08,00 SAY "Inativo  : "  Get lInativo
 
    READ
 
