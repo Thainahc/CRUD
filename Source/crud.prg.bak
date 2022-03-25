@@ -33,6 +33,8 @@
    @ 02,00 SAY "Informe a opcao (I - Inserir / A - Alterar / E - Excluir)" GET cOpcao PICT "@!" VALID OPCAO(cOpcao)
 
    READ
+   //LIMPANDO AS TELAS ANTES DE CHAMAR A FUNÇÃO
+   CLEAR
 
    IF cOpcao == 'I'
       INCLUSAO()
@@ -60,14 +62,14 @@ RETURN lRetorno
 
 FUNCTION INCLUSAO()
 
-   LOCAL nCodigo:=0, cNome:=Space(100), nPreco:=0, dCadastro:=Date(), lInativo:=.F.
+   LOCAL nCodigo:=0, cNome:=Space(100), nPreco:=0, dCadastro:=Date(), cInativo:='N', GetList:={}
 
-   @ 03,00 SAY "Informe os dados para a inclusao do produto"
-   @ 04,00 SAY "Codigo   : "  GET nCodigo
-   @ 05,00 SAY "Nome     : "  GET cNome
-   @ 06,00 SAY "Preco    : "  GET nPreco PICT "@E 999,999.99"
-   @ 07,00 SAY "Cadastro : "  GET dCadastro
-   @ 08,00 SAY "Inativo  : "  GET lInativo
+   @ 00,00 SAY "Informe os dados para a inclusao do produto"
+   @ 01,00 SAY "Codigo   : "  Get nCodigo PICT "99999"
+   @ 02,00 SAY "Nome     : "  Get cNome PICT "@!S30"
+   @ 03,00 SAY "Preco    : "  Get nPreco PICT "@E 999,999.99"
+   @ 04,00 SAY "Cadastro : "  Get dCadastro
+   @ 05,00 SAY "Inativo  : "  Get cInativo VALID(cInativo$'SN')
 
    READ
 
@@ -79,7 +81,13 @@ FUNCTION INCLUSAO()
    REPLACE NOME     WITH cNome
    REPLACE PRECO    WITH nPreco
    REPLACE CADASTRO WITH dCadastro
-   REPLACE INATIVO  WITH lInativo
+   //REPLACE INATIVO  WITH cInativo=='S'
+
+   IF cInativo=='S'
+      REPLACE INATIVO  WITH .T.
+    ELSE
+      REPLACE INATIVO  WITH .F.
+   ENDIF
 
    DBCommit()
 
@@ -91,36 +99,41 @@ FUNCTION ALTERACAO()
 
    LOCAL nCodigo:=0, cNome:=Space(100), nPreco:=0, dCadastro:=Date(), lInativo:=.F., GetList:={}
 
+   @ 00,00 SAY "Informe o codigo do produto a ser alterado: " GET nCodigo
+
+   READ
+
    CLEAR
+
+   SELECT PRODUTO
 
    OrdSetFocus("CODIGO")
 
-   IF DBSeek(nCodigo)
-      nCodigo:=PRODUTO->CODIGO
+   IF DBSeek(nCodigo)  //busca o código que a pessoa digitou
       cNome:=PRODUTO->NOME
       nPreco:=PRODUTO->PRECO
       dCadastro:=PRODUTO->CADASTRO
       lInativo:=PRODUTO->INATIVO
 
-      @ 00,00 SAY "Informe os dados a serem alterados:"
-      @ 01,01 SAY "Nome    : " Get cNome
+      @ 00,01 SAY "Codigo  : " GET nCodigo WHEN .F. //Usuário não consegue alterar o campo. When faz o usuário passar ou não
+      @ 01,01 SAY "Nome    : " Get cNome PICT "@!S30"
       @ 02,01 SAY "Preco   : " Get nPreco
       @ 03,01 SAY "Cadastro: " Get dCadastro
       @ 04,01 SAY "Inativo : " Get lInativo
 
-   READ
-    ELSE
-      MessageBox(,"Código não encontrado. Informe novamente")
-   ENDIF
+      READ
 
-   SELECT PRODUTO
-   RLock() //trava o registro que será alterado
-   REPLACE NOME     WITH cNome
-   REPLACE PRECO    WITH nPreco
-   REPLACE CADASTRO WITH dCadastro
-   REPLACE ITATIVO  WITH cInativo=='S'
-   DBCommit() //salva as alterações
-   DBUnlock() //destrava o registro
+      SELECT PRODUTO
+      RLock() //trava o registro que será alterado
+      REPLACE NOME     WITH cNome
+      REPLACE PRECO    WITH nPreco
+      REPLACE CADASTRO WITH dCadastro
+      REPLACE ITATIVO  WITH cInativo=='S'
+      DBCommit() //salva as alterações
+      DBUnlock() //destrava o registro
+    ELSE
+      MessageBox(,"Código não encontrado. Informe novamente","Atenção", MB_ICONEXCLAMATION)
+   ENDIF
 
 RETURN NIL
 
