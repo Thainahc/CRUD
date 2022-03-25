@@ -18,7 +18,7 @@
       DBCreate("DBF\PRODUTO.DBF",{{"CODIGO","N",005,0},;
                                   {"NOME","C",100,0},;
                                   {"PRECO","N",010,2},;
-                                  {"Cadastro","D",008,0},;
+                                  {"CADASTRO","D",008,0},;
                                   {"INATIVO","L",001,0}})
    ENDIF
 
@@ -43,11 +43,8 @@
       @ 07,00 SAY "Cadastro : "  GET dCadastro
       @ 08,00 SAY "Inativo  : "  GET lInativo
 
-   INCLUSAO(nCodigo, cNome, nPreco, dCadastro, lInativo)
-   ENDIF
-   READ
+      READ
 
-   IF cOpcao == 'I'
       INCLUSAO(nCodigo, cNome, nPreco, dCadastro, lInativo)
    ELSEIF cOpcao == 'A'
       ALTERACAO()
