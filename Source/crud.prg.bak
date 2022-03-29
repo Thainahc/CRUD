@@ -24,7 +24,7 @@
    SELECT 0
 
    USE DBF\PRODUTO
-
+   //Indice da tabela que ordena por codigo, o nome do indice é informado na tag, o arquivo é informado no to
    INDEX ON PRODUTO->CODIGO TAG "CODIGO" TO NTX\IND_PRODUTO
 
    SET INDEX TO NTX\IND_PRODUTO
@@ -41,7 +41,7 @@
    ELSEIF cOpcao == 'A'
       ALTERACAO()
    ELSEIF cOpcao == 'E'
-      EXCLUSAO(nCodigo)
+      EXCLUSAO()
    ENDIF
 
  RETURN NIL
@@ -69,7 +69,7 @@ FUNCTION INCLUSAO()
    @ 02,00 SAY "Nome     : "  Get cNome PICT "@!S30"
    @ 03,00 SAY "Preco    : "  Get nPreco PICT "@E 999,999.99"
    @ 04,00 SAY "Cadastro : "  Get dCadastro
-   @ 05,00 SAY "Inativo  : "  Get cInativo VALID(cInativo$'SN')
+   @ 05,00 SAY "Inativo  : "  Get cInativo PICT "@!" VALID(cInativo$'SN')
 
    READ
 
@@ -84,9 +84,9 @@ FUNCTION INCLUSAO()
    //REPLACE INATIVO  WITH cInativo=='S'
 
    IF cInativo=='S'
-      REPLACE INATIVO  WITH .T.
+      REPLACE Inativo  WITH .T.
     ELSE
-      REPLACE INATIVO  WITH .F.
+      REPLACE Inativo  WITH .F.
    ENDIF
 
    DBCommit()
@@ -97,7 +97,7 @@ RETURN NIL
 
 FUNCTION ALTERACAO()
 
-   LOCAL nCodigo:=0, cNome:=Space(100), nPreco:=0, dCadastro:=Date(), lInativo:=.F., GetList:={}
+   LOCAL nCodigo:=0, cNome:=Space(100), nPreco:=0, dCadastro:=Date(), cInativo:='N', GetList:={}
 
    @ 00,00 SAY "Informe o codigo do produto a ser alterado: " GET nCodigo
 
@@ -113,13 +113,13 @@ FUNCTION ALTERACAO()
       cNome:=PRODUTO->NOME
       nPreco:=PRODUTO->PRECO
       dCadastro:=PRODUTO->CADASTRO
-      lInativo:=PRODUTO->INATIVO
+      cInativo:=IIF(PRODUTO->Inativo,'S','N') //altera o lógico para caractere, assim é exibido na tela
 
       @ 00,01 SAY "Codigo  : " GET nCodigo WHEN .F. //Usuário não consegue alterar o campo. When faz o usuário passar ou não
       @ 01,01 SAY "Nome    : " Get cNome PICT "@!S30"
       @ 02,01 SAY "Preco   : " Get nPreco
       @ 03,01 SAY "Cadastro: " Get dCadastro
-      @ 04,01 SAY "Inativo : " Get lInativo
+      @ 04,01 SAY "Inativo : " Get cInativo PICT "@!" VALID(cInativo$'SN')
 
       READ
 
@@ -128,7 +128,14 @@ FUNCTION ALTERACAO()
       REPLACE NOME     WITH cNome
       REPLACE PRECO    WITH nPreco
       REPLACE CADASTRO WITH dCadastro
-      REPLACE ITATIVO  WITH cInativo=='S'
+      //REPLACE ITATIVO  WITH cInativo=='S'
+
+      IF cInativo =='S'
+         REPLACE Inativo WITH .T.
+       ELSE
+         REPLACE Inativo WITH .F.
+      ENDIF
+
       DBCommit() //salva as alterações
       DBUnlock() //destrava o registro
     ELSE
@@ -142,16 +149,48 @@ FUNCTION EXCLUSAO()
 
    LOCAL nCodigo:=0, GetList:={}
 
+   @ 00,00 SAY "Informe o codigo a ser excluido: " GET nCodigo VALID PRODUTO_CADASTRADO(nCodigo)
+
+   READ
+
    CLEAR
 
    SELECT PRODUTO
 
-   //OrderFocous("CODIGO")
+   OrdSetFocus("CODIGO") // retorna o indice já informado
+   RLock()
+   DELETE
+   DBUnlock()
 
-   @ 00,00 SAY "Informe o código a ser excluído: " GET nCodigo
-
+   MessageBox(,"Produto excluído.")
 
 RETURN NIL
+
+*------------------------------------------*
+FUNCTION Busca_Produto(nCodigo)
+
+ LOCAL lBuscou
+
+ SELECT PRODUTO
+ OrdSetFocus("CODIGO")
+
+ lBuscou:=DBSeek(nCodigo) //DBSeek busca o codigo informado
+
+ RETURN lBuscou
+
+ *------------------------------------------*
+FUNCTION Produto_Cadastrado(nCodigo)
+
+ LOCAL lRetorno:=.T.
+
+ SELECT PRODUTO
+
+ IF !Busca_Produto(nCodigo)
+    MessageBox(,"Esse produto não está cadastrado.")
+    lRetorno:=.F.
+ ENDIF
+
+ RETURN lRetorno
 
 
 

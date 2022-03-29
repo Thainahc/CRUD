@@ -24,7 +24,7 @@
    SELECT 0
 
    USE DBF\PRODUTO
-
+   //Indice da tabela que ordena por codigo, o nome do indice é informado na tag, o arquivo é informado no to
    INDEX ON PRODUTO->CODIGO TAG "CODIGO" TO NTX\IND_PRODUTO
 
    SET INDEX TO NTX\IND_PRODUTO
@@ -41,7 +41,7 @@
    ELSEIF cOpcao == 'A'
       ALTERACAO()
    ELSEIF cOpcao == 'E'
-      EXCLUSAO(nCodigo)
+      EXCLUSAO()
    ENDIF
 
  RETURN NIL
@@ -84,9 +84,9 @@ FUNCTION INCLUSAO()
    //REPLACE INATIVO  WITH cInativo=='S'
 
    IF cInativo=='S'
-      REPLACE INATIVO  WITH .T.
+      REPLACE Inativo  WITH .T.
     ELSE
-      REPLACE INATIVO  WITH .F.
+      REPLACE Inativo  WITH .F.
    ENDIF
 
    DBCommit()
@@ -113,13 +113,13 @@ FUNCTION ALTERACAO()
       cNome:=PRODUTO->NOME
       nPreco:=PRODUTO->PRECO
       dCadastro:=PRODUTO->CADASTRO
-      lInativo:=PRODUTO->INATIVO
+      cInativo:=IIF(PRODUTO->Inativo,'S','N') //altera o lógico para caractere, assim é exibido na tela
 
       @ 00,01 SAY "Codigo  : " GET nCodigo WHEN .F. //Usuário não consegue alterar o campo. When faz o usuário passar ou não
       @ 01,01 SAY "Nome    : " Get cNome PICT "@!S30"
       @ 02,01 SAY "Preco   : " Get nPreco
       @ 03,01 SAY "Cadastro: " Get dCadastro
-      @ 04,01 SAY "Inativo : " Get cInativo PICT "@!" VALID(cInativo$"SN")
+      @ 04,01 SAY "Inativo : " Get cInativo PICT "@!" VALID(cInativo$'SN')
 
       READ
 
@@ -131,9 +131,9 @@ FUNCTION ALTERACAO()
       //REPLACE ITATIVO  WITH cInativo=='S'
 
       IF cInativo =='S'
-         REPLACE INATIVO WITH .T.
-       ELSEIF
-         REPLACE INATIVO WITH .F.
+         REPLACE Inativo WITH .T.
+       ELSE
+         REPLACE Inativo WITH .F.
       ENDIF
 
       DBCommit() //salva as alterações
@@ -149,16 +149,48 @@ FUNCTION EXCLUSAO()
 
    LOCAL nCodigo:=0, GetList:={}
 
+   @ 00,00 SAY "Informe o codigo a ser excluido: " GET nCodigo VALID PRODUTO_CADASTRADO(nCodigo)
+
+   READ
+
    CLEAR
 
    SELECT PRODUTO
 
-   //OrderFocous("CODIGO")
+   OrdSetFocus("CODIGO") // retorna o indice já informado
+   RLock()
+   DELETE
+   DBUnlock()
 
-   @ 00,00 SAY "Informe o código a ser excluído: " GET nCodigo
-
+   MessageBox(,"Produto de código " + AllTrim(Str(nCodigo)) + " excluído.")
 
 RETURN NIL
+
+*------------------------------------------*
+FUNCTION Busca_Produto(nCodigo)
+
+ LOCAL lBuscou
+
+ SELECT PRODUTO
+ OrdSetFocus("CODIGO")
+
+ lBuscou:=DBSeek(nCodigo) //DBSeek busca o codigo informado
+
+ RETURN lBuscou
+
+ *------------------------------------------*
+FUNCTION Produto_Cadastrado(nCodigo)
+
+ LOCAL lRetorno:=.T.
+
+ SELECT PRODUTO
+
+ IF !Busca_Produto(nCodigo)
+    MessageBox(,"Esse produto não está cadastrado.")
+    lRetorno:=.F.
+ ENDIF
+
+ RETURN lRetorno
 
 
 
