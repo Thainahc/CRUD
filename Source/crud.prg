@@ -1,5 +1,7 @@
 #INCLUDE "WINUSER.CH"
- FUNCTION MAIN()
+
+*-------------*
+FUNCTION MAIN()
 
    LOCAL GetList:={}, cOpcao:=" "
 
@@ -14,11 +16,11 @@
    ENDIF
 
    IF !File("DBF\PRODUTO.DBF")
-      DBCreate("DBF\PRODUTO.DBF",{{"CODIGO","N",005,0},;
-                                  {"NOME","C",100,0},;
-                                  {"PRECO","N",010,2},;
+      DBCreate("DBF\PRODUTO.DBF",{{"CODIGO"  ,"N",005,0},;
+                                  {"NOME"    ,"C",100,0},;
+                                  {"PRECO"   ,"N",010,2},;
                                   {"CADASTRO","D",008,0},;
-                                  {"INATIVO","L",001,0}})
+                                  {"INATIVO" ,"L",001,0}})
    ENDIF
 
    SELECT 0
@@ -38,36 +40,37 @@
 
    IF cOpcao == 'I'
       INCLUSAO()
-   ELSEIF cOpcao == 'A'
+    ELSEIF cOpcao == 'A'
       ALTERACAO()
-   ELSEIF cOpcao == 'E'
+    ELSEIF cOpcao == 'E'
       EXCLUSAO()
    ENDIF
 
- RETURN NIL
+RETURN NIL
 
- *----------------------*
+*--------------------*
+FUNCTION OPCAO(cOpcao)
 
- FUNCTION OPCAO(cOpcao)
    LOCAL lRetorno
+
    IF cOpcao <> 'I' .AND. cOpcao <> 'A' .AND. cOpcao <> 'E'
       MessageBox(,"Opção inválida. Informe (I - Inserir / A - Alterar / E - Excluir)","Atenção",MB_ICONEXCLAMATION)
       lRetorno:=.F.
     ELSE
       lRetorno:=.T.
    ENDIF
+
 RETURN lRetorno
 
-*--------------------------------*
-
+*-----------------*
 FUNCTION INCLUSAO()
 
    LOCAL nCodigo:=0, cNome:=Space(100), nPreco:=0, dCadastro:=Date(), cInativo:='N', GetList:={}
 
    @ 00,00 SAY "Informe os dados para a inclusao do produto"
-   @ 01,00 SAY "Codigo   : "  Get nCodigo PICT "99999"
-   @ 02,00 SAY "Nome     : "  Get cNome PICT "@!S30"
-   @ 03,00 SAY "Preco    : "  Get nPreco PICT "@E 999,999.99"
+   @ 01,00 SAY "Codigo   : "  Get nCodigo  PICT "99999"
+   @ 02,00 SAY "Nome     : "  Get cNome    PICT "@!S30"
+   @ 03,00 SAY "Preco    : "  Get nPreco   PICT "@E 999,999.99"
    @ 04,00 SAY "Cadastro : "  Get dCadastro
    @ 05,00 SAY "Inativo  : "  Get cInativo PICT "@!" VALID(cInativo$'SN')
 
@@ -93,8 +96,7 @@ FUNCTION INCLUSAO()
 
 RETURN NIL
 
-*-------------------------------------*
-
+*------------------*
 FUNCTION ALTERACAO()
 
    LOCAL nCodigo:=0, cNome:=Space(100), nPreco:=0, dCadastro:=Date(), cInativo:='N', GetList:={}
@@ -110,16 +112,16 @@ FUNCTION ALTERACAO()
    OrdSetFocus("CODIGO")
 
    IF DBSeek(nCodigo)  //busca o código que a pessoa digitou
-      cNome:=PRODUTO->NOME
-      nPreco:=PRODUTO->PRECO
-      dCadastro:=PRODUTO->CADASTRO
-      cInativo:=IIF(PRODUTO->Inativo,'S','N') //altera o lógico para caractere, assim é exibido na tela
+      cNome     :=PRODUTO->NOME
+      nPreco    :=PRODUTO->PRECO
+      dCadastro :=PRODUTO->CADASTRO
+      cInativo  :=IIF(PRODUTO->Inativo,'S','N') //altera o lógico para caractere, assim é exibido na tela
 
-      @ 00,01 SAY "Codigo  : " GET nCodigo WHEN .F. //Usuário não consegue alterar o campo. When faz o usuário passar ou não
-      @ 01,01 SAY "Nome    : " Get cNome PICT "@!S30"
-      @ 02,01 SAY "Preco   : " Get nPreco
+      @ 00,01 SAY "Codigo  : " GET nCodigo   PICT "99999" WHEN .F. //Usuário não consegue alterar o campo. When faz o usuário passar ou não
+      @ 01,01 SAY "Nome    : " Get cNome     PICT "@!S30"
+      @ 02,01 SAY "Preco   : " Get nPreco    PICT "@E 999,999.99"
       @ 03,01 SAY "Cadastro: " Get dCadastro
-      @ 04,01 SAY "Inativo : " Get cInativo PICT "@!" VALID(cInativo$'SN')
+      @ 04,01 SAY "Inativo : " Get cInativo  PICT "@!" VALID(cInativo$'SN')
 
       READ
 
@@ -144,7 +146,7 @@ FUNCTION ALTERACAO()
 
 RETURN NIL
 
-*------------------------------------*
+*-----------------*
 FUNCTION EXCLUSAO()
 
    LOCAL nCodigo:=0, GetList:={}
@@ -157,7 +159,6 @@ FUNCTION EXCLUSAO()
 
    SELECT PRODUTO
 
-   OrdSetFocus("CODIGO") // retorna o indice já informado
    RLock()
    DELETE
    DBUnlock()
@@ -166,32 +167,28 @@ FUNCTION EXCLUSAO()
 
 RETURN NIL
 
-*------------------------------------------*
+*-----------------------------*
 FUNCTION Busca_Produto(nCodigo)
 
- LOCAL lBuscou
+   LOCAL lBuscou
 
- SELECT PRODUTO
- OrdSetFocus("CODIGO")
+   SELECT PRODUTO
+   OrdSetFocus("CODIGO")
 
- lBuscou:=DBSeek(nCodigo) //DBSeek busca o codigo informado
+   lBuscou:=DBSeek(nCodigo) //DBSeek busca o codigo informado
 
- RETURN lBuscou
+RETURN lBuscou
 
- *------------------------------------------*
+*----------------------------------*
 FUNCTION Produto_Cadastrado(nCodigo)
 
- LOCAL lRetorno:=.T.
+   LOCAL lRetorno:=.T.
 
- SELECT PRODUTO
+   SELECT PRODUTO
 
- IF !Busca_Produto(nCodigo)
-    MessageBox(,"Esse produto não está cadastrado.")
-    lRetorno:=.F.
- ENDIF
+   IF !Busca_Produto(nCodigo)
+      MessageBox(,"Esse produto não está cadastrado.")
+      lRetorno:=.F.
+   ENDIF
 
- RETURN lRetorno
-
-
-
-
+RETURN lRetorno
