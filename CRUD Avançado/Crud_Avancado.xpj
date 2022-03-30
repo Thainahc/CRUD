@@ -1,0 +1,96 @@
+<?xml version="1.0"?>
+<Project>
+   <Type Value="exe"/>
+   <Description Value="Crud_Avancado"/>
+   <Output Value="Crud_Avancado.exe"/>
+   <Environment Value="xHarbour"/>
+   <MainModule Value="main.prg"/>
+   <MultipleInstances Value="Y"/>
+   <XPManifest Value="Y"/>
+   <Icon Value=""/>
+   <Parameters Value=""/>
+   <Version>
+      <VersionInfo Value="N"/>
+      <Version Value="1.0"/>
+      <Release Value="0"/>
+      <Build Value="0"/>
+      <Company Value=""/>
+      <CopyRight Value=""/>
+      <TradeMarks Value=""/>
+      <Comments Value=""/>
+   </Version>
+   <Directories>
+      <SourceDir Value="Source"/>
+      <IncludeDir Value="Include"/>
+      <ResourceDir Value="Resource"/>
+      <ObjDir Value="Obj"/>
+   </Directories>
+   <Options>
+      <AutomaticMemvarDeclaration Value="N"/>
+      <DebugInfo Value="N"/>
+      <SuppressLineNumberInformation Value="N"/>
+      <SuppressShortcutting Value="N"/>
+      <WarnningLevel Value="1"/>
+      <MoreOptions Value=""/>
+      <MoreCOpt Value=""/>
+      <MapFile Value="N"/>
+      <ConsoleMode Value="N"/>
+      <MoreLinkOpt Value=""/>
+   </Options>
+   <Export>
+      <Dir Value=""/>
+      <Source Value="Y"/>
+      <Exe Value="N"/>
+      <Bin Value="N"/>
+      <Resource Value="Y"/>
+      <ResourceAll Value="N"/>
+      <ErrorLog Value="N"/>
+      <Subprojects Value="Y"/>
+   </Export>
+   <Clean>
+      <All Value="N"/>
+   </Clean>
+   <FinalExe>
+      <FullCompile Value="N"/>
+      <UpxCompress Value="N"/>
+      <CompressFlags Value=""/>
+      <Installer Value="N"/>
+      <InstallerFlags Value=""/>
+      <TlbInfo Value="N"/>
+   </FinalExe>
+   <VCS>
+      <Type Value="None"/>
+   </VCS>
+   <Files>
+      <File Filename="main.prg"/>
+   </Files>
+   <Libraries>
+      <Library Filename="[xHarbour]rtl.lib"/>
+      <Library Filename="[xHarbour]vm.lib"/>
+      <Library Filename="[xHarbour]gtwin.lib"/>
+      <Library Filename="[xHarbour]gtgui.lib" Link="N"/>
+      <Library Filename="[xHarbour]lang.lib"/>
+      <Library Filename="[xHarbour]macro.lib"/>
+      <Library Filename="[xHarbour]rdd.lib"/>
+      <Library Filename="[xHarbour]dbfntx.lib"/>
+      <Library Filename="[xHarbour]dbfcdx.lib" Link="N"/>
+      <Library Filename="[xHarbour]dbffpt.lib"/>
+      <Library Filename="[xHarbour]sixcdx.lib" Link="N"/>
+      <Library Filename="[xHarbour]hbsix.lib"/>
+      <Library Filename="[xHarbour]rddads.lib" Link="N"/>
+      <Library Filename="[xHarbour]ace32.lib" Link="N"/>
+      <Library Filename="[xHarbour]codepage.lib"/>
+      <Library Filename="[xHarbour]common.lib"/>
+      <Library Filename="[xHarbour]pp.lib"/>
+      <Library Filename="[xHarbour]pcrepos.lib"/>
+      <Library Filename="[xHarbour]hbzip.lib" Link="N"/>
+      <Library Filename="[xHarbour]zlib.lib" Link="N"/>
+      <Library Filename="[bcc]c0w32.obj"/>
+      <Library Filename="[bcc]psdk\odbc32.lib"/>
+      <Library Filename="[bcc]psdk\msimg32.lib"/>
+      <Library Filename="[bcc]cw32.lib"/>
+      <Library Filename="[bcc]import32.lib"/>
+      <Library Filename="[bcc]wininet.lib"/>
+   </Libraries>
+</Project>
+
