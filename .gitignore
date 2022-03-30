@@ -1,6 +1,6 @@
-/DBF
-/NTX
-crud.exe
+*.DBF
+*.NTX
+*.exe
 error.log
 *.bak
 *.obj
