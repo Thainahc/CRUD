@@ -7,9 +7,15 @@ FUNCTION MAIN()
    LOCAL aTitulos:={}, aCampos:={}
 
    SET DATE BRITISH
+   SET DELETE ON       //ON  - Reconhece o produto excluído e Atualiza a tela removendo o produto
+                       //OFF - continua mantendo o registro na tela
 
-    IF !ISDIRECTORY("DBF")
+   IF !ISDIRECTORY("DBF")
       RUN("MD DBF")
+   ENDIF
+
+   IF !ISDIRECTORY("NTX")
+      RUN("MD NTX")
    ENDIF
 
    IF !File("DBF\PRODUTO.DBF")
@@ -24,6 +30,13 @@ FUNCTION MAIN()
    SELECT 0
    USE DBF\PRODUTO
 
+   INDEX ON PRODUTO->CODIGO TAG "CODIGO" TO NTX\IND_PRODUTO
+   INDEX ON PRODUTO->NOME   TAG "NOME"   TO NTX\IND_PRODUTO
+
+   SET INDEX TO NTX\IND_PRODUTO
+
+   OrdSetFocus("NOME")
+
    @ 00,00 SAY Date()
    @ 00,27 SAY "Cadastro de Produtos"
    @ 00,72 SAY Time()
@@ -37,36 +50,35 @@ FUNCTION MAIN()
 
 RETURN NIL
 
-*----------------*
-FUNCTION F_MAIN()
-   //validando a tecla insert
-   if LastKey()==K_INS
-      INCLUIR()
-    ELSEIF LastKey()==K_ENTER
-      ALTERAR()
-    ELSEIF LastKey()==K_DEL
-      EXCLUIR()
+*--------------------*
+FUNCTION F_MAIN(nModo)
+
+   IF nModo==4  //avalia se foi o usuário ou o programa que solicitou a telca. Enter e Esc são reconhecidos pelo programa
+      //validando a tecla insert
+      if LastKey()==K_INS
+         INCLUIR()
+       ELSEIF LastKey()==K_ENTER
+         ALTERAR()
+       ELSEIF LastKey()==K_DEL
+         EXCLUIR()
+      ENDIF
    ENDIF
 
-RETURN NIL
+RETURN 2  //retorna o DBedit para atualizar, retorna para o Cad. Produtos e redesenha o DBEdit
 
 *----------------*
 FUNCTION INCLUIR()
 
    LOCAL GetList:={}, nCodigo:=0, cNome:=Space(100), nPreco:=0, dCadastro:=Date(), cInativo:='N'
 
-   CLEAR
+   SELECT PRODUTO
 
-   @ 00,00 SAY Date()
-   @ 00,27 SAY "Cadastro de Produtos"
-   @ 00,72 SAY Time()
-   @ 01,00 SAY Replicate('-',80)
+   @ 02,00 CLEAR TO 16,80
+
    @ 02,00 SAY PadC("Incluir",80)
-   @ 03,00 SAY Replicate('-',80)
-   @ 17,00 SAY Replicate('-',80)
-   @ 18,00 SAY "INS - INCLUIR / ENTER - ALTERAR / DEL - EXCLUIR / LETRA - BUSCAR / F2 - RELATORIO"
+   @ 03,00 SAY Replicate("-",80)
 
-   @ 04,00 SAY "Codigo  :    " GET nCodigo   PICT "99999"
+   @ 04,00 SAY "Codigo  :    " GET nCodigo   PICT "99999" VALID VERCODIGO(nCodigo)
    @ 05,00 SAY "Nome    :    " GET cNome     PICT "@!S30"
    @ 06,00 SAY "Preco   : R$ " GET nPreco    PICT "@E 999,999.99"
    @ 07,00 SAY "Cadastro:    " GET dCadastro
@@ -80,31 +92,49 @@ FUNCTION INCLUIR()
 
       DBAppend() //abrindo campo em branco para ser preenchido
 
-      Replace CODIGO   WITH nCodigo
-      Replace Nome     WITH cNome
-      Replace PRECO    WITH nPreco
-      Replace CADASTRO WITH dCadastro
-      Replace INATIVO  WITH cInativo=='S'
-      /*outra forma de codificar o cInativo
+      REPLACE CODIGO   WITH nCodigo
+      REPLACE NOME     WITH cNome
+      REPLACE PRECO    WITH nPreco
+      REPLACE CADASTRO WITH dCadastro
+      //REPLACE INATIVO  WITH cInativo=='S'        outra forma de codificar o cInativo
+
       IF cInativo=='S'
-         Replace INATIVO WITH .T.
+         REPLACE INATIVO WITH .T.
        ELSE
-         Replace INATIVO WITH .F.
-      ENDIF  */
+         REPLACE INATIVO WITH .F.
+      ENDIF
 
       DBCommit() //salvando o processo
 
-      MessageBox(,"Produto Cadastrado.","Cadastrado",MB_ICONINFORMATION)
+      MessageBox(,"Produto cadastrado com sucesso.","Produto Incluído",MB_ICONINFORMATION)
    ENDIF
 
 RETURN NIL
 
+*------------------*
+//verifica se o código informado já foi digitado
+FUNCTION VERCODIGO(nCodigo)
+
+   LOCAL lRetorno:=.T., cOrdem_Produto
+
+   SELECT PRODUTO
+
+   cOrdem_Produto:=OrdSetFocus("CODIGO") // Ordsetfocus() retorna a ordem atual (NOME).
+                                         // Salvamos a ordem anterior em uma variável (NOME).
+                                         // Mudamos a ordem atual para CODIGO.
+
+   IF DBSeek(nCodigo)
+      MessageBox(,"O código " + AllTrim(Str(nCodigo)) + "já está cadastrado","Atenção",MB_ICONEXCLAMATION)
+      lRetorno:=.F.
+   ENDIF
+
+   OrdSetFocus(cOrdem_Produto) // Volta a ordem que estava antes (NOME)
+
+RETURN lRetorno
 *----------------*
 FUNCTION ALTERAR()
 
    LOCAL nCodigo:=0, cNome:=Space(100), nPreco:=0, dCadastro:=Date(), cInativo:='N', GetList:={}
-
-   MessageBox(,'Alterar')
 
    SELECT PRODUTO
 
@@ -132,28 +162,38 @@ FUNCTION ALTERAR()
 
       RLock()
 
-      Replace NOME     WITH cNome
-      Replace PRECO    WITH nPreco
-      Replace CADASTRO WITH dCadastro
+      REPLACE NOME     WITH cNome
+      REPLACE PRECO    WITH nPreco
+      REPLACE CADASTRO WITH dCadastro
 
       IF cInativo=='S'
-         Replace INATIVO WITH .T.
+         REPLACE INATIVO WITH .T.
        ELSEIF cInativo=='N'
-         Replace INATIVO WITH .F.
+         REPLACE INATIVO WITH .F.
       ENDIF
 
       DBCommit()
 
       DBUnlock()
 
-      MessageBox(,"Produto alterado com sucesso.","Concluído",MB_ICONINFORMATION)
+      MessageBox(,"Produto alterado com sucesso.","Produto Alterado",MB_ICONINFORMATION)
    ENDIF
 
 RETURN NIL
 
 *----------------*
 FUNCTION EXCLUIR()
-   MessageBox(,"Entrou no Excluir")
+
+   IF MessageBox(,"Deseja excluir o Produto?", "Atenção", MB_ICONWARNING+MB_YESNO)==IDYES
+      SELECT PRODUTO
+
+      RLock() //trava o registro que será excluido
+      DELETE
+      DBUnlock() //Destrava o Registro
+
+      MessageBox(,"Produto excluído com sucesso","Produto Excluído", MB_ICONINFORMATION)
+   ENDIF
+
 RETURN NIL
 
 *----------------*
