@@ -61,6 +61,8 @@ FUNCTION F_MAIN(nModo)
          ALTERAR()
        ELSEIF LastKey()==K_DEL
          EXCLUIR()
+       ELSEIF LastKey()>32 .AND. LastKey()<127
+         BUSCAR()
       ENDIF
    ENDIF
 
@@ -198,7 +200,26 @@ RETURN NIL
 
 *----------------*
 FUNCTION BUSCAR()
-   MessageBox(,"Entrou no Buscarr")
+
+   LOCAL cNome:=Space(100), GetList:={}
+
+   @ 11,14 CLEAR TO 14,70
+   @ 11,14 TO 14,70
+   @ 12,15 SAY "Digite o nome do produto:"
+   @ 13,15 Get cNome PICTURE "@!S30"
+
+   READ
+
+   SELECT PRODUTO
+
+   OrdSetFocus("NOME")
+
+   IF !DBSeek(cNome)
+      MessageBox(,"O produto não foi encontrado.","Atenção",MB_ICONINFORMATION)
+   ENDIF
+
+
+
 RETURN NIL
 
 *-------------------*
