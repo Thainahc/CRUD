@@ -65,7 +65,9 @@ FUNCTION F_MAIN(nModo)
          EXCLUIR()
        ELSEIF LastKey()>31 .AND. LastKey()<127
          BUSCAR()
-      ENDIF
+       ELSEIF LastKey()==K_F2
+         RELATORIO()
+     ENDIF
    ENDIF
 
 RETURN 2  //retorna o DBedit para atualizar, retorna para o Cad. Produtos e redesenha o DBEdit
@@ -236,5 +238,21 @@ RETURN NIL
 
 *-------------------*
 FUNCTION RELATORIO()
-   MessageBox(,"Entrou no Relatorio")
+
+   LOCAL nRelatorio
+
+   IF !ISDIRECTORY("RELATORIO")
+      RUN("MD RELATORIO")
+   ENDIF
+
+   SELECT PRODUTO
+   //fCREATE CRIA QUALQUER ARQUIVO DE EXTENSÃO. FOpen abre um arquivo que já existe. Em relatório sempre cria
+   nRelatorio:=FCreate("RELATORIO\RELATORIO_PRODUTO.TXT")
+
+   MessageBox(,"Arquivo Salvo: " + Str(nRelatorio))
+
+   FClose(nRelatorio) //fecha o arquivo, sempre usa o ID
+
 RETURN NIL
+
+
