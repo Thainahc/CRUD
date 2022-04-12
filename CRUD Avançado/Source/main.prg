@@ -6,6 +6,7 @@ FUNCTION MAIN()
    LOCAL nCodigo:=0, cNome:=Space(50), nPreco:=0, dCadastro:=Date(), cInativo:='N', GetList:={}
    LOCAL aTitulos:={}, aCampos:={}
 
+   SET EXACT OFF
    SET DATE BRITISH
    SET DELETE ON       //ON  - Reconhece o produto excluído e Atualiza a tela removendo o produto
                        //OFF - continua mantendo o registro na tela
@@ -36,6 +37,7 @@ FUNCTION MAIN()
    SET INDEX TO NTX\IND_PRODUTO
 
    OrdSetFocus("NOME")
+   DBGoTop()  //vai para o primeiro índice no banco de dados
 
    @ 00,00 SAY Date()
    @ 00,27 SAY "Cadastro de Produtos"
@@ -61,7 +63,7 @@ FUNCTION F_MAIN(nModo)
          ALTERAR()
        ELSEIF LastKey()==K_DEL
          EXCLUIR()
-       ELSEIF LastKey()>32 .AND. LastKey()<127
+       ELSEIF LastKey()>31 .AND. LastKey()<127
          BUSCAR()
       ENDIF
    ENDIF
@@ -202,6 +204,12 @@ RETURN NIL
 FUNCTION BUSCAR()
 
    LOCAL cNome:=Space(100), GetList:={}
+   LOCAL cOrdem_Produto, nRegistro_Produto
+   LOCAL cPrimeira_Tecla
+
+   cPrimeira_Tecla:=Chr(LastKey()) // No caso de o usuário apertar a letra "a": Lastkey() retorna 97 (tabela ASCII), Chr() converte 97 em "a"
+   cNome:=PadR(cPrimeira_Tecla,100)
+   //MessageBox(,"Primeira tecla: " + cPrimeira_Tecla)
 
    @ 11,14 CLEAR TO 14,70
    @ 11,14 TO 14,70
@@ -212,13 +220,17 @@ FUNCTION BUSCAR()
 
    SELECT PRODUTO
 
-   OrdSetFocus("NOME")
+   //salva a ordem antiga (codigo) e recebe uma nova (nome)
+   cOrdem_Produto:=OrdSetFocus("NOME")
+   nRegistro_Produto:=RecNo() //recNo retorna o número de registro que está na tabela Fox para controle do produto
 
-   IF !DBSeek(cNome)
+   IF !DBSeek(AllTrim(cNome))
       MessageBox(,"O produto não foi encontrado.","Atenção",MB_ICONINFORMATION)
+      DBGoTo(nRegistro_Produto)   //vai para a variável que estava posicionada a seleção antes de realizar o DBSeek
    ENDIF
 
-
+   //depois de fazer a busca, retorna a ordem antiga que está na variável
+   OrdSetFocus(cOrdem_Produto)
 
 RETURN NIL
 
