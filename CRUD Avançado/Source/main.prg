@@ -50,6 +50,7 @@ FUNCTION MAIN()
    aCampos :={"CODIGO", "SUBSTR(NOME, 1,40)", "PRECO"}
    DBEdit(02,00, 16,80, aCampos,"F_MAIN",, aTitulos)
 
+   DBCloseAll() //fecha todas as tabelas abertas no momento
 RETURN NIL
 
 *--------------------*
@@ -253,18 +254,21 @@ FUNCTION RELATORIO()
    //Cabeçalho do documento
    FWrite(nRelatorio, "CÓDIGO | NOME" + Space(45)+ "|"+PadL("PREÇO",19)+cCRLF)
    FWrite(nRelatorio, Replicate("-",80)+cCRLF)
-   MessageBox(,"Arquivo Salvo: " + Str(nRelatorio))
 
    nRegistro:=RecNo() //recNo retorna o número de registro que está na tabela Fox para controle do produto
 
+   DBGoTop() //posiciona no primeiro registro
+   //SUBSTR ajusta o tamanho do campo. 1 é onde inicia e 48 é a quantidade de caracteres que irá pegar
    DO WHILE !Eof()
-      FWrite(nRelatorio, Str(PRODUTO->CODIGO,5)+" | "+PRODUTOS->NOME+" | "+PadL(Str(PRODUTOS->PRECO,10,2),18)+cCRLF)
+      FWrite(nRelatorio, Str(PRODUTO->CODIGO,6)+" | "+SubStr(PRODUTO->NOME,1,48)+" | "+PadL(Str(PRODUTO->PRECO,10,2),18)+cCRLF)
       DBSkip()  //Pula para o próximo registro
    ENDDO
 
    DBGoTo(nRegistro)  //vai para a variavel que estava posicionada a seleção antes de realizar o DBSeek
 
    FClose(nRelatorio) //fecha o arquivo, sempre usa o ID
+
+   MessageBox(,"Relatório gerado com sucesso.","Relatório Gerado",MB_ICONINFORMATION)
 
 RETURN NIL
 
