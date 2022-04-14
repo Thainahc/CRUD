@@ -209,24 +209,21 @@ FUNCTION BUSCAR()
    LOCAL cOrdem_Produto, nRegistro_Produto
    LOCAL cPrimeira_Tecla
 
-   cPrimeira_Tecla:=Chr(LastKey()) // No caso de o usuário apertar a letra "a": Lastkey() retorna 97 (tabela ASCII), Chr() converte 97 em "a"
-   cNome:=PadR(cPrimeira_Tecla,100)
-   //MessageBox(,"Primeira tecla: " + cPrimeira_Tecla)
+   cPrimeira_Tecla:=Chr(LastKey()) //EX: No caso de o usuário apertar a letra "a": Lastkey() retorna 97 (tabela ASCII), Chr() converte 97 em "a"
+   cNome:=PadR(cPrimeira_Tecla,100)   //PadR corrige o espaçamento a direita
 
-   @ 11,14 CLEAR TO 14,70
-   @ 11,14 TO 14,70
+   @ 11,14 CLEAR TO 14,70  //Limpa a tela
+   @ 11,14 TO 14,70        //desenha a margem na tela para exibir a nova janela
    @ 12,15 SAY "Digite o nome do produto:"
    @ 13,15 Get cNome PICTURE "@!S30"
-
    READ
 
    SELECT PRODUTO
-
    //salva a ordem antiga (codigo) e recebe uma nova (nome)
    cOrdem_Produto:=OrdSetFocus("NOME")
    nRegistro_Produto:=RecNo() //recNo retorna o número de registro que está na tabela Fox para controle do produto
 
-   IF !DBSeek(AllTrim(cNome))
+   IF !DBSeek(AllTrim(cNome)) //alltrim remove os espaços e é possível buscar com nome incompleto
       MessageBox(,"O produto não foi encontrado.","Atenção",MB_ICONINFORMATION)
       DBGoTo(nRegistro_Produto)   //vai para a variável que estava posicionada a seleção antes de realizar o DBSeek
    ENDIF
@@ -239,7 +236,7 @@ RETURN NIL
 *-------------------*
 FUNCTION RELATORIO()
 
-   LOCAL nRelatorio
+   LOCAL nRelatorio,cCRLF:=Chr(13)+Chr(10), nRegistro
 
    IF !ISDIRECTORY("RELATORIO")
       RUN("MD RELATORIO")
@@ -249,7 +246,23 @@ FUNCTION RELATORIO()
    //fCREATE CRIA QUALQUER ARQUIVO DE EXTENSÃO. FOpen abre um arquivo que já existe. Em relatório sempre cria
    nRelatorio:=FCreate("RELATORIO\RELATORIO_PRODUTO.TXT")
 
+   //título do relatório
+   FWrite(nRelatorio, PadC("Relatório de Produtos", 80)+cCRLF)
+   FWrite(nRelatorio, Replicate("-",80)+cCRLF)
+   //Space define o espaçamento do campo. PadL define o espaçamento a esquerda e de tamanho 19
+   //Cabeçalho do documento
+   FWrite(nRelatorio, "CÓDIGO | NOME" + Space(45)+ "|"+PadL("PREÇO",19)+cCRLF)
+   FWrite(nRelatorio, Replicate("-",80)+cCRLF)
    MessageBox(,"Arquivo Salvo: " + Str(nRelatorio))
+
+   nRegistro:=RecNo() //recNo retorna o número de registro que está na tabela Fox para controle do produto
+
+   DO WHILE !Eof()
+      FWrite(nRelatorio, Str(PRODUTO->CODIGO,5)+" | "+PRODUTOS->NOME+" | "+PadL(Str(PRODUTOS->PRECO,10,2),18)+cCRLF)
+      DBSkip()  //Pula para o próximo registro
+   ENDDO
+
+   DBGoTo(nRegistro)  //vai para a variavel que estava posicionada a seleção antes de realizar o DBSeek
 
    FClose(nRelatorio) //fecha o arquivo, sempre usa o ID
 
